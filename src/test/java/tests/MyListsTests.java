@@ -65,8 +65,8 @@ public class MyListsTests extends CoreTestCase {
 
     @Test
     public void testSaveTwoArticlesToMyList() {
-        String first_el = "Java";
-        String second_el = "JavaScript";
+        String first_article_part_title = "Java ";
+        String second_article_part_title = "JavaScript";
 
         SearchPageObject SearchPageObject = SearchPageObjectFactory.get(driver);
         SearchPageObject.initSearchInput();
@@ -86,13 +86,21 @@ public class MyListsTests extends CoreTestCase {
             Auth.clickAuthButton();
             Auth.enterLoginData(login, password);
             Auth.submitForm();
+
+            ArticlePageObject.waitForTitleElement();
+
+            assertEquals("We are not on the same page after login",
+                    article_title,
+                    ArticlePageObject.getArticleTitle()
+            );
+            ArticlePageObject.addArticleToMySaved();
         }
         // String name_of_folder = "Learning programming";
         // ArticlePageObject.CreateListAddArticleToMyList(name_of_folder);
         ArticlePageObject.closeArticle();
         SearchPageObject.initSearchInput();
         SearchPageObject.typeSearchLine("JavaScript");
-        SearchPageObject.clickByArticleWithSubstring("Programming language");
+        SearchPageObject.clickByArticleWithSubstring("rogramming language");
 
 
 
@@ -103,12 +111,7 @@ public class MyListsTests extends CoreTestCase {
         } else {
             ArticlePageObject.addArticleToMySaved();
         }
-        if (Platform.getInstance().isMv()) {
-            AuthorizationPageObject Auth = new AuthorizationPageObject(driver);
-            Auth.clickAuthButton();
-            Auth.enterLoginData(login, password);
-            Auth.submitForm();
-        }
+
         //ArticlePageObject.addArticleToCreatedList(name_of_folder);
 
         ArticlePageObject.closeArticle();
@@ -119,20 +122,6 @@ public class MyListsTests extends CoreTestCase {
         NavigationUI.clickMyLists();
 
         MyListsPageObject MyListPageObject = MyLIstsPageObjectFactory.get(driver);
-      /*
-        if (Platform.getInstance().isAndroid()) {
-            // ArticlePageObject.CreateListAddArticleToMyList(name_of_folder);
-            MyListPageObject.openFolderByName(name_of_folder);
-        } else {
-            ArticlePageObject.addArticleToMySaved();
-        }
-        if (Platform.getInstance().isMv()) {
-            AuthorizationPageObject Auth = new AuthorizationPageObject(driver);
-            Auth.clickAuthButton();
-            Auth.enterLoginData(login, password);
-            Auth.submitForm();
-        }
-*/
 
       //  MyListPageObject.clickElementToTheRightUpperCorner();
         MyListPageObject.swipeByArticleToDelete(article_title);
@@ -156,9 +145,9 @@ public class MyListsTests extends CoreTestCase {
                     name_of_article_on_page
             );
         }
-        else if(Platform.getInstance().isIOS()) {
-            MyListPageObject.CheckArticleInList(second_el);
-            MyListPageObject.CheckArticleNotInList(first_el);
+        else  {
+            MyListPageObject.waitForArticleToAppearByTitle(second_article_part_title);
+            MyListPageObject.waitForArticleToDisappearByTitle(first_article_part_title);
 
         }
 

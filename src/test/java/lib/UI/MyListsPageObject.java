@@ -85,12 +85,15 @@ abstract public class MyListsPageObject extends MainPageObject {
     }
 
     public int getElementsCountInList() {
-        if(Platform.getInstance().isAndroid()) {
+        if (Platform.getInstance().isAndroid())  {
             return this.getAmountOfElements(ARTICLE_TITLE);
-        }
-        else {
+        } else if (Platform.getInstance().isIOS()) {
             return this.getAmountOfElements(ARTICLE_BY_TYPE);
         }
+        else {
+            return this.getAmountOfElements(ARTICLE_TITLE);
+        }
+
     }
 
 
@@ -154,11 +157,5 @@ abstract public class MyListsPageObject extends MainPageObject {
     }
 
 
-    public void CheckArticleInList(String expTitle){
-        this.waitForElementPresent(getSavedArticleXpathByTitle(expTitle), "Target article is not present in list " + ARTICLE_BY_TITLE_TPL);
-    }
 
-    public void CheckArticleNotInList(String expTitle){
-        this.waitForElementNotPresent(getSavedArticleXpathByTitle(expTitle), "Target article is presented in list " + ARTICLE_BY_TITLE_TPL, 5);
-    }
 }
