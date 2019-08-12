@@ -1,12 +1,11 @@
 package lib;
 
 import io.appium.java_client.AppiumDriver;
-import io.appium.java_client.android.AndroidDriver;
 import junit.framework.TestCase;
+import lib.UI.WelcomePageObject;
 import org.openqa.selenium.ScreenOrientation;
 import org.openqa.selenium.remote.DesiredCapabilities;
-
-import java.net.URL;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
 public class CoreTestCase extends TestCase {
 
@@ -15,17 +14,16 @@ public class CoreTestCase extends TestCase {
 
 
 
-    protected AppiumDriver driver;
-    private static String AppiumURL = "http://127.0.0.1:4723/wd/hub";
+    protected RemoteWebDriver driver;
 
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-
-        DesiredCapabilities capabilities = this.getCapabilitiesByPlatformEnv();
-        driver = new AndroidDriver(new URL(AppiumURL), capabilities);
+        driver = Platform.getInstance().getDriver();
         this.rotateScreenPortrait();
+        this.skipWelcomePageForIOSApp();
+        this.openWikiWebPageForMobileWeb();
     }
 
     @Override
@@ -36,43 +34,48 @@ public class CoreTestCase extends TestCase {
     }
 
     protected void rotateScreenPortrait() {
-        driver.rotate(ScreenOrientation.PORTRAIT);
+        if (driver instanceof AppiumDriver) {
+            AppiumDriver driver = (AppiumDriver) this.driver;
+            driver.rotate(ScreenOrientation.PORTRAIT);
+        } else {
+            System.out.println("Methods rotateScreenPortrait() does nothing for platform" + Platform.getInstance().getPlatformVar());
+        }
 
     }
 
     protected void rotateScreenLandscape() {
-        driver.rotate(ScreenOrientation.LANDSCAPE);
+        if (driver instanceof AppiumDriver) {
+            AppiumDriver driver = (AppiumDriver) this.driver;
+            driver.rotate(ScreenOrientation.LANDSCAPE);
+    } else{
+            System.out.println("Methods rotateScreenLandscape() does nothing for platform" + Platform.getInstance().getPlatformVar());
 
+        }
     }
 
     protected void backGroundApp(int seconds) {
-        driver.runAppInBackground(seconds);
-
-    }
-
-    private DesiredCapabilities getCapabilitiesByPlatformEnv() throws Exception {
-        String platform = System.getenv("PLATFORM");
-        DesiredCapabilities capabilities = new DesiredCapabilities();
-
-        if (platform.equals(PLATFORM_ANDROID)) {
-            capabilities.setCapability("platformName", "Android");
-            capabilities.setCapability("deviceName", "AndroidTestDevice");
-            capabilities.setCapability("platformVersion", "6.0");
-            capabilities.setCapability("automationName", "Appium");
-            capabilities.setCapability("appPackage", "org.wikipedia");
-            capabilities.setCapability("appActivity", ".main.MainActivity");
-            capabilities.setCapability("app", "C:/Users/oleontyeva/Desktop/JavaAppiumAutomation/apks/org.wikipedia.apk");
-
-        } else if (platform.equals(PLATFORM_IOS)) {
-
-            capabilities.setCapability("platformName", "iOS");
-            capabilities.setCapability("deviceName", "iPhone SE");
-            capabilities.setCapability("platformVersion", "11.3");
-            capabilities.setCapability("app", "/Users/olesaleonteva/Downloads/JavaAppiumAuto2/apks/Wikipedia.app");
-
-        } else {
-            throw new Exception("Cannot get run platform from env variable. PLatform value" + platform);
+        if (driver instanceof AppiumDriver) {
+            AppiumDriver driver = (AppiumDriver) this.driver;
+            driver.runAppInBackground(seconds);
+    } else {
+            System.out.println("Methods backGroundApp() does nothing for platform" + Platform.getInstance().getPlatformVar());
         }
-        return capabilities;
     }
+
+    protected void openWikiWebPageForMobileWeb()
+    {
+        if(Platform.getInstance().isMv()) {
+            driver.get("https://en.m.wikipedia.org");
+        } else {
+            System.out.println("Methods openWikiWebPageForMobileWeb()  does nothing for platform" + Platform.getInstance().getPlatformVar());
+        }
+    }
+    private void skipWelcomePageForIOSApp(){
+        if(Platform.getInstance().isIOS()){
+            AppiumDriver driver = (AppiumDriver) this.driver;
+            WelcomePageObject WelcomePageObject = new WelcomePageObject(driver);
+            WelcomePageObject.clickSkip();
+        }
+    }
+
 }

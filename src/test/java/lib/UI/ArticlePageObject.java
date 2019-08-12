@@ -2,24 +2,27 @@ package lib.UI;
 
 import io.appium.java_client.AppiumDriver;
 import org.openqa.selenium.WebElement;
+import lib.Platform;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
-public class ArticlePageObject extends MainPageObject {
+abstract public class ArticlePageObject extends MainPageObject {
 
-    private static final String
-            TITLE = "id:org.wikipedia:id/view_page_title_text",
-            FOOTER_ELEMENT = "xpath://*[@text = 'View page in browser']",
-            OPTIONS_BUTTON = "xpath://android.widget.ImageView[@content-desc='More options']",
-            OPTIONS_ADD_TO_MY_LIST_BUTTON = "xpath://*[@text='Add to reading list']",
-            ADD_TO_MY_LIST_OVERLAY = "id:org.wikipedia:id/onboarding_button",
-            MY_LIST_NAME_INPUT = "id:org.wikipedia:id/text_input",
-            MY_LIST_OK_BUTTON = "xpath://*[@text='OK']",
-            CLOSE_ARTICLE_BUTTON = "xpath://android.widget.ImageButton[@content-desc='Navigate up']",
-            CREATED_LIST_TPL = "xpath://*[@resource-id='org.wikipedia:id/item_container']//*[contains(@text,'{SUBSTRING}')]";
+    protected static String
+            TITLE,
+            FOOTER_ELEMENT,
+            OPTIONS_BUTTON,
+            OPTIONS_ADD_TO_MY_LIST_BUTTON,
+            OPTIONS_REMOVE_FROM_MY_LIST_BUTTON,
+            ADD_TO_MY_LIST_OVERLAY,
+            MY_LIST_NAME_INPUT,
+            MY_LIST_OK_BUTTON,
+            CLOSE_ARTICLE_BUTTON,
+            CREATED_LIST_TPL;
 
 
 
 
-    public ArticlePageObject(AppiumDriver driver) {
+    public ArticlePageObject(RemoteWebDriver driver) {
         super(driver);
     }
     /* TEMPLATES METHODS */
@@ -36,14 +39,37 @@ public class ArticlePageObject extends MainPageObject {
 
     public String getArticleTitle() {
         WebElement title_element = waitForTitleElement();
-        return title_element.getAttribute("text");
+        if (Platform.getInstance().isAndroid()){
+            return title_element.getAttribute("text");
+        }else if (Platform.getInstance().isIOS()){
+            return title_element.getAttribute("name");
+        } else {
+            return title_element.getText();
+        }
     }
 
     public void swipeToFooter() {
-        this.swipeUpToFindElement(FOOTER_ELEMENT,
-                "Cannot find the end of article",
-                20
-        );
+
+        if(Platform.getInstance().isAndroid()){
+            this.swipeUpToFindElement(
+                    FOOTER_ELEMENT,
+                    "Cannot find the end of article",
+                    40
+            );
+        } else  if (Platform.getInstance().isIOS()){
+            this.swipeUpTillElementAppear(FOOTER_ELEMENT,
+                    "Cannot find the end of article",
+                    40
+            );
+        } else {
+            this.scrollWebPageTillElementNotVisible(
+                    FOOTER_ELEMENT,
+                    "Cannot find the end of article",
+                    40
+            );
+        }
+
+
     }
 
     public void CreateListAddArticleToMyList(String name_of_folder) {
@@ -84,11 +110,16 @@ public class ArticlePageObject extends MainPageObject {
     }
 
     public void closeArticle() {
-        this.waitForElementAndClick(
-                CLOSE_ARTICLE_BUTTON,
-                "Cannot close article, cannot find X link",
-                5
-        );
+        if(Platform.getInstance().isIOS() || Platform.getInstance().isAndroid()){
+            this.waitForElementAndClick(
+                    CLOSE_ARTICLE_BUTTON,
+                    "Cannot close article, cannot find X link",
+                    5
+            );
+        } else {
+            System.out.println("Methods closeArticle() do nothing for platform" + Platform.getInstance().getPlatformVar());
+        }
+
     }
     public void addArticleToCreatedList(String name_of_folder){
         this.waitForElementAndClick(
@@ -110,5 +141,24 @@ public class ArticlePageObject extends MainPageObject {
                 5
 
         );
+    }
+    public void addArticleToMySaved(){
+        if(Platform.getInstance().isMv()){
+            this.removeArticleFromSavedIfItAdded();
+        }
+        this.waitForElementAndClick(OPTIONS_ADD_TO_MY_LIST_BUTTON, "Cannot find option to add article to readlist", 5);
+    }
+
+    public void removeArticleFromSavedIfItAdded(){
+        if(this.isElementPresent(OPTIONS_REMOVE_FROM_MY_LIST_BUTTON)){
+           this.waitForElementAndClick(
+                   OPTIONS_REMOVE_FROM_MY_LIST_BUTTON,
+                   "Cannot click button to remove an article from saved",
+                   1
+           );
+        this.waitForElementPresent(
+               OPTIONS_ADD_TO_MY_LIST_BUTTON,"Cannot find button to add an article to saved list after removing it from this list before" );
+
+        }
     }
 }

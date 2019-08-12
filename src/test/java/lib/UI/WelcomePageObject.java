@@ -2,6 +2,7 @@ package lib.UI;
 
 import io.appium.java_client.AppiumDriver;
 import org.openqa.selenium.By;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
 public class WelcomePageObject extends MainPageObject {
     private static final String
@@ -10,9 +11,10 @@ public class WelcomePageObject extends MainPageObject {
         STEP_ADD_OR_EDIT_PREFERRED_LANG_LINK = "id:Add or edit preferred languages",
         STEP_LEARN_MORE_ABOUT_DATA_COLLECTED_LINK = "id:Learn more about data collected",
         NEXT_LINK = "id:Next",
-        GET_STARTED_BUTTON = "id:Get started";
+        GET_STARTED_BUTTON = "id:Get started",
+        SKIP = "id:Skip";
 
-    public WelcomePageObject(AppiumDriver driver) {
+    public WelcomePageObject(RemoteWebDriver driver) {
         super(driver);
     }
     public void waitForLearnMoreLink(){
@@ -35,5 +37,8 @@ public class WelcomePageObject extends MainPageObject {
 
     public void clickGetStartedButton(){
         this.waitForElementAndClick(GET_STARTED_BUTTON, "Cannot find and click 'Get started' link", 10);
+    }
+    public void clickSkip(){
+        this.waitForElementAndClick(SKIP, "Cannot find and click skip button", 5);
     }
 }

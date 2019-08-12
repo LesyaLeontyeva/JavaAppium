@@ -3,20 +3,21 @@ package lib.UI;
 import io.appium.java_client.AppiumDriver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
-public class SearchPageObject extends MainPageObject {
-    private static final String
-            SEARCH_INIT_ELEMENT = "xpath://*[contains(@text,'Search Wikipedia')]",
-            SEARCH_INPUT = "xpath://*[contains(@text,'Search…')]",
-            SEARCH_RESULT_BY_SUBSTRING_TPL = "xpath://*[@resource-id='org.wikipedia:id/page_list_item_container']//*[contains(@text,'{SUBSTRING}')]",
-            SEARCH_CANCEL_BUTTON = "id:org.wikipedia:id/search_close_btn",
-            SEARCH_RESULT_ELEMENT = "xpath://*[@resource-id='org.wikipedia:id/search_results_list']/*[@resource-id='org.wikipedia:id/page_list_item_container']",
-            SEARCH_EMPTY_RESULT_ELEMENT = "xpath://*[@text='No results found']",
-            SEARCH_ELEMENT_TEXT_ATTRIBUTE = "id:org.wikipedia:id/search_src_text",
-            SEARCH_EMPTY_MESSAGE = "id:org.wikipedia:id/search_empty_message",
-            SEARCH_TITLE_TEXT = "id:org.wikipedia:id/view_page_title_text";
+abstract public class SearchPageObject extends MainPageObject {
+     protected static  String
+            SEARCH_INIT_ELEMENT,
+            SEARCH_INPUT ,
+            SEARCH_RESULT_BY_SUBSTRING_TPL,
+            SEARCH_CANCEL_BUTTON ,
+            SEARCH_RESULT_ELEMENT ,
+            SEARCH_EMPTY_RESULT_ELEMENT ,
+            SEARCH_ELEMENT_TEXT_ATTRIBUTE ,
+            SEARCH_EMPTY_MESSAGE ,
+            SEARCH_TITLE_TEXT ;
 
-    public SearchPageObject(AppiumDriver driver) {
+    public SearchPageObject(RemoteWebDriver driver) {
         super(driver);
     }
     /* TEMPLATES METHODS */
@@ -47,7 +48,7 @@ public class SearchPageObject extends MainPageObject {
 
     public void waitForSearchResult(String substring) {
         String search_result_xpath = getResultSearchElement(substring);
-        this.waitForElementPresent(search_result_xpath, "Cannot find search result with substring" + substring);
+        this.waitForElementPresent(search_result_xpath, "Cannot find search result with substring " + substring);
     }
 
     public void waitForCancelButtonToAppear() {
